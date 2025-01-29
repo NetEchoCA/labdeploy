@@ -42,7 +42,10 @@ fi
 
 # Function to uninstall LabDeploy
 uninstall_labdeploy() {
+    echo "DEBUG: Running uninstall_labdeploy() function"
+
     read -p "Are you sure you want to remove LabDeploy and all services? (y/n): " confirm
+    echo "DEBUG: User input -> '$confirm'"
     if [[ "$confirm" == "y" ]]; then
         docker-compose -f "$WORKDIR/compose.yml" down || true
         rm -rf "$WORKDIR"
@@ -63,6 +66,7 @@ prompt_user_action() {
         "Install" "Deploy LabDeploy and configure services" \
         "Backup" "Backup current configuration" \
         "Uninstall" "Remove LabDeploy and all services" 3>&1 1>&2 2>&3)
+
     echo "DEBUG: User selected -> '$ACTION'"
 
     ACTION=$(echo "$ACTION" | xargs)  # Trim spaces
