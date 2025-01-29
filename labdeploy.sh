@@ -87,6 +87,26 @@ select_timezone() {
     export TZ="$TIMEZONE"
 }
 
+# Function to select applications to install
+select_services() {
+    SERVICES=$(whiptail --title "Select Services" --checklist "Select which services to install:" 20 60 10 \
+        "AdGuard Home" "Network-wide ad blocker" ON \
+        "Overseerr" "Media request manager" ON \
+        "Plex" "Media server" ON \
+        "qBittorrent" "Torrent downloader" ON \
+        "Radarr" "Movie management" ON \
+        "SABnzbd" "Usenet downloader" ON \
+        "Sonarr" "TV show management" ON \
+        "Tautulli" "Plex monitoring" ON \
+        "ZNC" "IRC Bouncer" ON 3>&1 1>&2 2>&3)
+
+    if [ -z "$SERVICES" ]; then
+        echo "No services selected. Exiting."
+        exit 1
+    fi
+    export SERVICES
+}
+
 # Function to install LabDeploy
 install_labdeploy() {
     select_media_root
