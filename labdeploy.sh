@@ -77,6 +77,15 @@ select_media_root() {
     export MEDIA_ROOT="$MEDIA_ROOT"
 }
 
+# Function to select timezone interactively
+select_timezone() {
+    TIMEZONE=$(whiptail --title "Select Timezone" --menu "Choose your timezone:" 20 60 10 $(timedatectl list-timezones | awk '{print $1 " " $1}') 3>&1 1>&2 2>&3)
+    if [ -z "$TIMEZONE" ]; then
+        echo "No timezone selected. Exiting."
+        exit 1
+    fi
+    export TZ="$TIMEZONE"
+}
 
 # Function to install LabDeploy
 install_labdeploy() {
