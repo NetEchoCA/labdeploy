@@ -47,6 +47,9 @@ prompt_user_action() {
         "Backup" "Backup current configuration" \
         "Uninstall" "Remove LabDeploy and all services" 3>&1 1>&2 2>&3)
     echo "DEBUG: User selected -> '$ACTION'"
+
+    ACTION=$(echo "$ACTION" | xargs)  # Trim spaces
+
     case "$ACTION" in
         "Install")
             install_labdeploy
