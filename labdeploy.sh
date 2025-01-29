@@ -69,7 +69,7 @@ start_containers_prompt() {
 # Function to select MEDIA_ROOT interactively with tab completion
 select_media_root() {
     echo "Enter the media root directory (use Tab for path completion):"
-    read -e -p "Path: " MEDIA_ROOT
+    read -e -p "Path: " MEDIA_ROOT </dev/tty
     if [ -z "$MEDIA_ROOT" ]; then
         echo "No media root selected. Exiting."
         exit 1
