@@ -44,19 +44,23 @@ fi
 uninstall_labdeploy() {
     echo "DEBUG: Running uninstall_labdeploy() function"
 
-    read -p "Are you sure you want to remove LabDeploy and all services? (y/n): " confirm </dev/tty
+    read -p "Are you sure you want to remove LabDeploy and all services? (y/n): " confirm
     echo "DEBUG: User input -> '$confirm'"
-    if [[ "$confirm" == "y" ]]; then
-        docker-compose -f "$WORKDIR/compose.yml" down || true
-        rm -rf "$WORKDIR"
-        echo "LabDeploy and all services have been removed."
 
-        echo "Removing installed dependencies..."
+    if [[ "$confirm" == "y" ]]; then
+        echo "DEBUG: Stopping and removing Docker containers"
+        docker-compose -f "$WORKDIR/compose.yml" down || true
+
+        echo "DEBUG: Deleting LabDeploy directory"
+        rm -rf "$WORKDIR"
+
+        echo "DEBUG: Removing installed dependencies..."
         sudo apt remove -y docker.io docker-compose-plugin whiptail
         sudo apt autoremove -y
-        echo "Dependencies removed. System is now clean."
+
+        echo "DEBUG: Uninstallation complete. System is clean."
     else
-        echo "Uninstallation cancelled."
+        echo "DEBUG: Uninstallation cancelled by user."
     fi
 }
 
