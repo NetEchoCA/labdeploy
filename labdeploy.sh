@@ -56,8 +56,9 @@ prompt_user_action() {
             exit 0
             ;;
         "Uninstall")
-        echo "Starting uninstallation..."
+            echo "Starting uninstallation..."
             uninstall_labdeploy
+            echo "DEBUG: Uninstall function executed"
             exit 0
             ;;
         *)
