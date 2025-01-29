@@ -44,7 +44,7 @@ fi
 uninstall_labdeploy() {
     echo "DEBUG: Running uninstall_labdeploy() function"
 
-    read -p "Are you sure you want to remove LabDeploy and all services? (y/n): " confirm
+    read -p "Are you sure you want to remove LabDeploy and all services? (y/n): " confirm </dev/tty
     echo "DEBUG: User input -> '$confirm'"
     if [[ "$confirm" == "y" ]]; then
         docker-compose -f "$WORKDIR/compose.yml" down || true
