@@ -40,6 +40,23 @@ if ! command -v docker &>/dev/null || ! command -v docker-compose &>/dev/null ||
     install_packages
 fi
 
+# Function to uninstall LabDeploy
+uninstall_labdeploy() {
+    read -p "Are you sure you want to remove LabDeploy and all services? (y/n): " confirm
+    if [[ "$confirm" == "y" ]]; then
+        docker-compose -f "$WORKDIR/compose.yml" down || true
+        rm -rf "$WORKDIR"
+        echo "LabDeploy and all services have been removed."
+
+        echo "Removing installed dependencies..."
+        sudo apt remove -y docker.io docker-compose-plugin whiptail
+        sudo apt autoremove -y
+        echo "Dependencies removed. System is now clean."
+    else
+        echo "Uninstallation cancelled."
+    fi
+}
+
 # Function to prompt user for action
 prompt_user_action() {
     ACTION=$(whiptail --title "LabDeploy" --menu "Choose an option:" 15 60 3 \
@@ -193,23 +210,6 @@ EOF
 
     # Ask the user if they want to start the containers now
     start_containers_prompt
-}
-
-# Function to uninstall LabDeploy
-uninstall_labdeploy() {
-    read -p "Are you sure you want to remove LabDeploy and all services? (y/n): " confirm
-    if [[ "$confirm" == "y" ]]; then
-        docker-compose -f "$WORKDIR/compose.yml" down || true
-        rm -rf "$WORKDIR"
-        echo "LabDeploy and all services have been removed."
-
-        echo "Removing installed dependencies..."
-        sudo apt remove -y docker.io docker-compose-plugin whiptail
-        sudo apt autoremove -y
-        echo "Dependencies removed. System is now clean."
-    else
-        echo "Uninstallation cancelled."
-    fi
 }
 
 # Start script by prompting user for action
