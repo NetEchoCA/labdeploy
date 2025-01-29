@@ -19,6 +19,17 @@ mkdir -p "$WORKDIR/config"
 install_packages() {
     echo "Installing required packages..."
     sudo apt update
+    sudo apt install -y ca-certificates curl gnupg
+
+    # Add Docker’s official repository
+    sudo install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo tee /etc/apt/keyrings/docker.asc > /dev/null
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    echo "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | \
+        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    sudo apt update
     sudo apt install -y docker.io docker-compose-plugin whiptail
     sudo usermod -aG docker "$USER"
     echo "Installation complete. Please log out and log back in to apply group changes."
@@ -35,7 +46,7 @@ prompt_user_action() {
         "Install" "Deploy LabDeploy and configure services" \
         "Backup" "Backup current configuration" \
         "Uninstall" "Remove LabDeploy and all services" 3>&1 1>&2 2>&3)
-
+    echo "DEBUG: User selected -> '$ACTION'"
     case "$ACTION" in
         "Install")
             install_labdeploy
@@ -45,6 +56,7 @@ prompt_user_action() {
             exit 0
             ;;
         "Uninstall")
+        echo "Starting uninstallation..."
             uninstall_labdeploy
             exit 0
             ;;
@@ -155,14 +167,14 @@ EOF
                 ;;
         esac
         cat <<EOF >> "$WORKDIR/compose.yml"
-  $SERVICE_NAME:
-    image: $IMAGE
-    container_name: $SERVICE_NAME
+  ${SERVICE_NAME//\"/}:
+    image: ${IMAGE//\"/}
+    container_name: ${SERVICE_NAME//\"/}
     restart: unless-stopped
     networks:
       - media_network
     volumes:
-      - ~/docker/config/$SERVICE_NAME:/config
+      - ~/docker/config/${SERVICE_NAME//\"/}:/config
       - \${MEDIA_ROOT}/downloads:/downloads
     environment:
       - PUID=\${PUID}
