@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # LabDeploy - Automated Homelab Deployment Script
-# Version: 1.01
+# Version: 1.02
 
 set -e
 
 # Display script version
 if [[ "$1" == "--version" ]]; then
-    echo "LabDeploy version 1.01"
+    echo "LabDeploy version 1.02"
     exit 0
 fi
 
@@ -65,6 +65,18 @@ start_containers_prompt() {
         echo "docker-compose -f $WORKDIR/compose.yml up -d"
     fi
 }
+
+# Function to select MEDIA_ROOT interactively with tab completion
+select_media_root() {
+    echo "Enter the media root directory (use Tab for path completion):"
+    read -e -p "Path: " MEDIA_ROOT
+    if [ -z "$MEDIA_ROOT" ]; then
+        echo "No media root selected. Exiting."
+        exit 1
+    fi
+    export MEDIA_ROOT="$MEDIA_ROOT"
+}
+
 
 # Function to install LabDeploy
 install_labdeploy() {

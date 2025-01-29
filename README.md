@@ -1,6 +1,6 @@
 # LabDeploy - Automated Homelab Deployment Script
 
-## Version: 1.01
+## Version: 1.02
 
 LabDeploy is a Bash script designed to automate the setup and deployment of a homelab media stack using Docker and Docker Compose on a Debian-based system.
 
