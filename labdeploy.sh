@@ -202,25 +202,33 @@ EOF
     echo "Generated .env file at $WORKDIR/.env"
 
     # Prompt user for ports
+    echo "DEBUG: Entering port selection loop"
     echo "Enter port numbers for each service (leave blank to use default):"
     for service in $SERVICES; do
         SERVICE_NAME=$(echo "$service" | awk '{print tolower($0)}' | tr -d ' "')
         DEFAULT_PORT=${DEFAULT_PORTS[$SERVICE_NAME]}
 
+        echo "DEBUG: Processing $SERVICE_NAME, default port: $DEFAULT_PORT"
+
         if [[ "$DEFAULT_PORT" == "N/A" ]]; then
-            echo "$SERVICE_NAME runs in host mode, no port selection needed."
-        else
-            while true; do
-                read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT
-                PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
-                if is_port_available "$PORT"; then
-                    export "${SERVICE_NAME^^}_PORT"="$PORT"
-                    break  # Port is available
-                else
-                    echo "Port $PORT is already in use. Please enter a different port."
-                fi
-            done
+            echo "DEBUG: $SERVICE_NAME runs in host mode, skipping port selection."
+            continue
         fi
+
+        while true; do
+            read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT
+            PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
+
+            if is_port_available "$PORT"; then
+                export "${SERVICE_NAME^^}_PORT"="$PORT"
+                echo "DEBUG: Assigned port $PORT to $SERVICE_NAME"
+                break  # Port is available
+            else
+                echo "DEBUG: Port $PORT is in use. Asking user to enter a new one."
+            fi
+        done
+
+    echo "DEBUG: Finished port selection loop"
 
         export "${SERVICE_NAME^^}_PORT"="$PORT"
     done
