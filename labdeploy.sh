@@ -105,7 +105,7 @@ prompt_user_action() {
     esac
 }
 
-# Function to ask user if they want to start Docker containers
+# Function to ask user if they want' to start Docker containers
 start_containers_prompt() {
     if whiptail --yesno "Do you want to start the containers now?" 10 60; then
         docker compose -f "$WORKDIR/compose.yml" up -d
@@ -220,22 +220,31 @@ EOF
 
         echo "DEBUG: About to prompt user for port for $SERVICE_NAME"
 
-        while true; do
-            read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT </dev/tty
-            PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
+    # Keep track of used ports to prevent conflicts
+    declare -A USED_PORTS
 
-            echo "DEBUG: User entered port $PORT for $SERVICE_NAME"
+    while true; do
+        read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT </dev/tty
+        PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
 
-            if is_port_available "$PORT"; then
-                export "${SERVICE_NAME^^}_PORT"="$PORT"
-                echo "${SERVICE_NAME^^}_PORT=$PORT" >> "$WORKDIR/.env"
+        echo "DEBUG: User entered port $PORT for $SERVICE_NAME"
 
-                echo "DEBUG: Assigned port $PORT to $SERVICE_NAME"
-                break  # Port is available
-            else
-                echo "DEBUG: Port $PORT is in use. Asking user to enter a new one."
-            fi
-        done
+        if [[ -n "${USED_PORTS[$PORT]}" ]]; then
+            echo "ERROR: Port $PORT is already assigned to ${USED_PORTS[$PORT]}. Please choose another port."
+            continue
+        fi
+
+        if is_port_available "$PORT"; then
+            USED_PORTS["$PORT"]="$SERVICE_NAME"
+            export "${SERVICE_NAME^^}_PORT"="$PORT"
+            echo "DEBUG: Assigned port $PORT to $SERVICE_NAME"
+            echo "${SERVICE_NAME^^}_PORT=$PORT" >> "$WORKDIR/.env"
+            break  # Port is available
+        else
+            echo "ERROR: Port $PORT is already in use by another process. Please enter a different port."
+        fi
+    done
+
 
     echo "DEBUG: Finished port selection loop"
 
