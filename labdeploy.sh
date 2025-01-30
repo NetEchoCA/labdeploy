@@ -221,7 +221,7 @@ EOF
         echo "DEBUG: About to prompt user for port for $SERVICE_NAME"
 
     # Keep track of used ports to prevent conflicts
-    declare -A USED_PORTS
+    declare -A USED_PORTS  # Track assigned ports
 
     while true; do
         read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT </dev/tty
@@ -229,21 +229,24 @@ EOF
 
         echo "DEBUG: User entered port $PORT for $SERVICE_NAME"
 
+        # Check if the port is already assigned within this script
         if [[ -n "${USED_PORTS[$PORT]}" ]]; then
             echo "ERROR: Port $PORT is already assigned to ${USED_PORTS[$PORT]}. Please choose another port."
             continue
         fi
 
+        # Check if the port is in use by another running process
         if is_port_available "$PORT"; then
-            USED_PORTS["$PORT"]="$SERVICE_NAME"
+            USED_PORTS["$PORT"]="$SERVICE_NAME"  # Store assigned port
             export "${SERVICE_NAME^^}_PORT"="$PORT"
-            echo "DEBUG: Assigned port $PORT to $SERVICE_NAME"
             echo "${SERVICE_NAME^^}_PORT=$PORT" >> "$WORKDIR/.env"
-            break  # Port is available
+            echo "DEBUG: Assigned port $PORT to $SERVICE_NAME"
+            break
         else
             echo "ERROR: Port $PORT is already in use by another process. Please enter a different port."
         fi
     done
+
 
 
     echo "DEBUG: Finished port selection loop"
