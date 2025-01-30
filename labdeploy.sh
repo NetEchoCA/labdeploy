@@ -290,7 +290,8 @@ EOF
         if [[ "$NETWORK_CONFIG" != 'network_mode: "host"' ]]; then
             echo "    ports:" >> "$WORKDIR/compose.yml"
             DEFAULT_PORT_VALUE="${DEFAULT_PORTS[$SERVICE_NAME]}"
-            echo "      - \"\${${SERVICE_NAME^^}_PORT}:${DEFAULT_PORT_VALUE}\"" >> "$WORKDIR/compose.yml"
+            PORT_MAPPING="\${${SERVICE_NAME^^}_PORT}:$DEFAULT_PORT_VALUE"
+            echo "      - \"$PORT_MAPPING\"" >> "$WORKDIR/compose.yml"
         fi
     done
 
