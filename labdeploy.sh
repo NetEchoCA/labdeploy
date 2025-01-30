@@ -131,7 +131,7 @@ select_timezone() {
 # Function to select applications to install
 select_services() {
     SERVICES=$(whiptail --title "Select Services" --checklist "Select which services to install:" 20 60 10 \
-        "AdGuard Home" "Network-wide ad blocker" ON \
+        "AdGuardHome" "Network-wide ad blocker" ON \
         "Overseerr" "Media request manager" ON \
         "Plex" "Media server" ON \
         "qBittorrent" "Torrent downloader" ON \
