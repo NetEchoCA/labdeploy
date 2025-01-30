@@ -278,7 +278,7 @@ EOF
         if [[ "$SERVICE_NAME" == "plex" ]]; then
             if [[ -d "/dev/dri" ]]; then
                 echo "DEBUG: /dev/dri detected, enabling hardware acceleration for Plex."
-                PLEX_HARDWARE_ACCEL="    devices:\n      - /dev/dri:/dev/dri\n    privileged: true"
+                PLEX_HARDWARE_ACCEL=$'    devices:\n      - /dev/dri:/dev/dri\n    privileged: true'
             else
                 echo "DEBUG: /dev/dri NOT found, skipping hardware acceleration for Plex."
                 PLEX_HARDWARE_ACCEL=""
@@ -308,8 +308,8 @@ EOF
 EOF
 
     # Append Plex hardware acceleration settings if needed
-    if [[ "$SERVICE_NAME" == "plex" ]]; then
-        echo "$PLEX_HARDWARE_ACCEL" >> "$WORKDIR/compose.yml"
+    if [[ "$SERVICE_NAME" == "plex" && -n "$PLEX_HARDWARE_ACCEL" ]]; then
+        printf "%s\n" "$PLEX_HARDWARE_ACCEL" >> "$WORKDIR/compose.yml"
     fi
 
     cat <<EOF >> "$WORKDIR/compose.yml"
