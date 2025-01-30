@@ -66,7 +66,15 @@ This will:
 (Note: This will remove all installed services and configurations but **not your media files**.)
 
 ## Changelog
-### **v1.01 (Latest)**
+### **v1.02 (Latest)**
+- **Fixed uninstall function** not running from the menu by ensuring function order
+- **Fixed `read -p` in uninstall** by forcing interactive input using `/dev/tty`
+- **Fixed YAML formatting issues** in `docker-compose.yml` by removing unwanted quotes
+- **Ensured Docker’s official repository is enabled** before installing packages
+- **Updated the installation process** to always fetch the latest Docker version
+- **Improved error handling and debug logging** for better troubleshooting
+
+### **v1.01**
 - Added **menu prompt at launch** (Install, Backup, Uninstall options)
 - Replaced `docker-compose` with **Docker Compose v2 (`docker-compose-plugin`)**
 - Implemented **backup functionality**
