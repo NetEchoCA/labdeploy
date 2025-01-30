@@ -271,6 +271,13 @@ EOF
                 ;;
         esac
 
+        # Detect if Plex requires hardware acceleration
+        if [[ "$SERVICE_NAME" == "plex" && -d "/dev/dri" ]]; then
+            PLEX_HARDWARE_ACCEL="    devices:\n      - /dev/dri:/dev/dri\n    privileged: true"
+        else
+            PLEX_HARDWARE_ACCEL=""
+        fi
+
     cat <<EOF >> "$WORKDIR/compose.yml"
   ${SERVICE_NAME//\"/}:
     image: ${IMAGE//\"/}
@@ -287,12 +294,18 @@ EOF
         } >> "$WORKDIR/compose.yml"
     fi
 
-
-
     cat <<EOF >> "$WORKDIR/compose.yml"
     volumes:
       - ~/docker/config/${SERVICE_NAME//\"/}:/config
       - \${MEDIA_ROOT}/downloads:/downloads
+EOF
+
+    # Append Plex hardware acceleration settings if needed
+    if [[ "$SERVICE_NAME" == "plex" ]]; then
+        echo "$PLEX_HARDWARE_ACCEL" >> "$WORKDIR/compose.yml"
+    fi
+
+    cat <<EOF >> "$WORKDIR/compose.yml"
     environment:
       - PUID=\${PUID}
       - PGID=\${PGID}
