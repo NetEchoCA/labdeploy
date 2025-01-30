@@ -195,6 +195,8 @@ EOF
                 IMAGE="lscr.io/linuxserver/$SERVICE_NAME:latest"
                 ;;
         esac
+        echo "DEBUG: SERVICE_NAME='$SERVICE_NAME', IMAGE='$IMAGE'"  # Add this line for debugging
+
         cat <<EOF >> "$WORKDIR/compose.yml"
   ${SERVICE_NAME//\"/}:
     image: ${IMAGE//\"/}
