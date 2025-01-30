@@ -246,10 +246,10 @@ EOF
                 NETWORK_CONFIG="network_mode: \"host\""
                 ;;
             znc)
-                NETWORK_CONFIG="networks:\n      - znc_network"
+                NETWORK_CONFIG="znc_network"
                 ;;
             *)
-                NETWORK_CONFIG="networks:\n      - media_network"
+                NETWORK_CONFIG="media_network"
                 ;;
         esac
 
