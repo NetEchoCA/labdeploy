@@ -216,7 +216,7 @@ EOF
         fi
 
         while true; do
-            read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT
+            read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT </dev/tty
             PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
 
             if is_port_available "$PORT"; then
