@@ -289,7 +289,8 @@ EOF
         # Only add ports if the service is NOT using host network mode
         if [[ "$NETWORK_CONFIG" != 'network_mode: "host"' ]]; then
             echo "    ports:" >> "$WORKDIR/compose.yml"
-            echo "      - \"\\${${SERVICE_NAME^^}_PORT}:${DEFAULT_PORTS[$SERVICE_NAME]}\"" >> "$WORKDIR/compose.yml"
+            DEFAULT_PORT_VALUE="${DEFAULT_PORTS[$SERVICE_NAME]}"
+            echo "      - \"\${${SERVICE_NAME^^}_PORT}:${DEFAULT_PORT_VALUE}\"" >> "$WORKDIR/compose.yml"
         fi
     done
 
