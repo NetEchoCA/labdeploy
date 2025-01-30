@@ -215,9 +215,13 @@ EOF
             continue
         fi
 
+        echo "DEBUG: About to prompt user for port for $SERVICE_NAME"
+
         while true; do
             read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT </dev/tty
             PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
+
+            echo "DEBUG: User entered port $PORT for $SERVICE_NAME"
 
             if is_port_available "$PORT"; then
                 export "${SERVICE_NAME^^}_PORT"="$PORT"
