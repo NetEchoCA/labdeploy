@@ -271,12 +271,20 @@ EOF
                 ;;
         esac
 
-        cat <<EOF >> "$WORKDIR/compose.yml"
+    cat <<EOF >> "$WORKDIR/compose.yml"
   ${SERVICE_NAME//\"/}:
     image: ${IMAGE//\"/}
     container_name: ${SERVICE_NAME//\"/}
     restart: unless-stopped
-    ${NETWORK_CONFIG}
+EOF
+
+    if [[ "$NETWORK_CONFIG" == 'network_mode: "host"' ]]; then
+        echo "    $NETWORK_CONFIG" >> "$WORKDIR/compose.yml"
+    else
+        printf "    networks:\n      - %s\n" "$NETWORK_CONFIG" >> "$WORKDIR/compose.yml"
+    fi
+
+    cat <<EOF >> "$WORKDIR/compose.yml"
     volumes:
       - ~/docker/config/${SERVICE_NAME//\"/}:/config
       - \${MEDIA_ROOT}/downloads:/downloads
