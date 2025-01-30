@@ -281,9 +281,12 @@ EOF
     if [[ "$NETWORK_CONFIG" == 'network_mode: "host"' ]]; then
         echo "    $NETWORK_CONFIG" >> "$WORKDIR/compose.yml"
     else
-        echo "    networks:" >> "$WORKDIR/compose.yml"
-        echo "      - $NETWORK_CONFIG" >> "$WORKDIR/compose.yml"
+        {
+            echo "    networks:"
+            echo "      - $NETWORK_CONFIG"
+        } >> "$WORKDIR/compose.yml"
     fi
+
 
 
     cat <<EOF >> "$WORKDIR/compose.yml"
