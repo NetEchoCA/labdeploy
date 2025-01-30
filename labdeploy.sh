@@ -58,13 +58,13 @@ uninstall_labdeploy() {
 
     if [[ "$confirm" == "y" ]]; then
         echo "DEBUG: Stopping and removing Docker containers"
-        docker-compose -f "$WORKDIR/compose.yml" down || true
+        docker compose -f "$WORKDIR/compose.yml" down || true
 
         echo "DEBUG: Deleting LabDeploy directory"
         rm -rf "$WORKDIR"
 
         echo "DEBUG: Removing installed dependencies..."
-        sudo apt remove -y docker.io docker-compose-plugin whiptail
+        sudo apt purge -y docker.io docker-compose-plugin whiptail
         sudo apt autoremove -y
 
         echo "DEBUG: Uninstallation complete. System is clean."
