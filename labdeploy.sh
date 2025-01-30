@@ -99,7 +99,7 @@ prompt_user_action() {
 # Function to ask user if they want to start Docker containers
 start_containers_prompt() {
     if whiptail --yesno "Do you want to start the containers now?" 10 60; then
-        docker-compose -f "$WORKDIR/compose.yml" up -d
+        docker compose -f "$WORKDIR/compose.yml" up -d
         echo "Containers are now running!"
     else
         echo "Setup complete. You can start the containers later using:"
@@ -195,7 +195,8 @@ EOF
                 IMAGE="lscr.io/linuxserver/$SERVICE_NAME:latest"
                 ;;
         esac
-        echo "DEBUG: SERVICE_NAME='$SERVICE_NAME', IMAGE='$IMAGE'"  # Add this line for debugging
+
+    echo "DEBUG: SERVICE_NAME='$SERVICE_NAME', IMAGE='$IMAGE'"  # Add this line for debugging
 
         cat <<EOF >> "$WORKDIR/compose.yml"
   ${SERVICE_NAME//\"/}:
