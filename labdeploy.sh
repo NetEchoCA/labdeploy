@@ -141,6 +141,11 @@ select_services() {
         "Tautulli" "Plex monitoring" ON \
         "ZNC" "IRC Bouncer" ON 3>&1 1>&2 2>&3)
 
+    echo "DEBUG: Selected SERVICES='$SERVICES'"
+
+    # Ensure services are formatted correctly
+    SERVICES=$(echo "$SERVICES" | tr -d '"')
+
     if [ -z "$SERVICES" ]; then
         echo "No services selected. Exiting."
         exit 1
