@@ -164,6 +164,9 @@ select_services() {
 
 
 # Function to install LabDeploy
+#!/bin/bash
+
+# Function to install LabDeploy
 install_labdeploy() {
     select_media_root
     select_timezone
@@ -272,10 +275,14 @@ EOF
         esac
 
         # Detect if Plex requires hardware acceleration
-        if [[ "$SERVICE_NAME" == "plex" && -d "/dev/dri" ]]; then
-            PLEX_HARDWARE_ACCEL="    devices:\n      - /dev/dri:/dev/dri\n    privileged: true"
-        else
-            PLEX_HARDWARE_ACCEL=""
+        if [[ "$SERVICE_NAME" == "plex" ]]; then
+            if [[ -d "/dev/dri" ]]; then
+                echo "DEBUG: /dev/dri detected, enabling hardware acceleration for Plex."
+                PLEX_HARDWARE_ACCEL="    devices:\n      - /dev/dri:/dev/dri\n    privileged: true"
+            else
+                echo "DEBUG: /dev/dri NOT found, skipping hardware acceleration for Plex."
+                PLEX_HARDWARE_ACCEL=""
+            fi
         fi
 
     cat <<EOF >> "$WORKDIR/compose.yml"
