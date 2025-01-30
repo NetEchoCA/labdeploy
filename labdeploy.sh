@@ -181,7 +181,8 @@ EOF
 
     # Generate docker-compose.yml
     echo "services:" > "$WORKDIR/compose.yml"
-    for service in $SERVICES; do
+    IFS=' ' read -r -a SERVICE_ARRAY <<< "$SERVICES"
+    for service in "${SERVICE_ARRAY[@]}"; do
         SERVICE_NAME=$(echo $service | tr '[:upper:]' '[:lower:]' | tr -d ' ')
         case $SERVICE_NAME in
             adguardhome)
