@@ -228,6 +228,8 @@ EOF
 
             if is_port_available "$PORT"; then
                 export "${SERVICE_NAME^^}_PORT"="$PORT"
+                echo "${SERVICE_NAME^^}_PORT=$PORT" >> "$WORKDIR/.env"
+
                 echo "DEBUG: Assigned port $PORT to $SERVICE_NAME"
                 break  # Port is available
             else
