@@ -11,6 +11,15 @@ if [[ "$1" == "--version" ]]; then
     exit 0
 fi
 
+is_port_available() {
+    local PORT=$1
+    if ss -tuln | grep -q ":$PORT "; then
+        return 1  # Port is in use
+    else
+        return 0  # Port is available
+    fi
+}
+
 # Ensure ~/docker directory exists
 WORKDIR="$HOME/docker"
 mkdir -p "$WORKDIR/config"
@@ -160,6 +169,19 @@ install_labdeploy() {
     select_timezone
     select_services
 
+    # Define default ports
+    declare -A DEFAULT_PORTS=(
+        [radarr]=7878
+        [sonarr]=8989
+        [sabnzbd]=8080
+        [qbittorrent]=8080
+        [overseerr]=5055
+        [tautulli]=8181
+        [znc]=6501
+        [plex]="N/A"  # Uses host mode, no manual port mapping
+        [adguardhome]="N/A"  # Uses host mode, no manual port mapping
+    )
+
     # Create necessary directories
     mkdir -p "$WORKDIR/config"
     for service in $SERVICES; do
@@ -179,11 +201,45 @@ EOF
 
     echo "Generated .env file at $WORKDIR/.env"
 
+    # Prompt user for ports
+    echo "Enter port numbers for each service (leave blank to use default):"
+    for service in $SERVICES; do
+        SERVICE_NAME=$(echo "$service" | awk '{print tolower($0)}' | tr -d ' "')
+        DEFAULT_PORT=${DEFAULT_PORTS[$SERVICE_NAME]}
+
+        if [[ "$DEFAULT_PORT" == "N/A" ]]; then
+            echo "$SERVICE_NAME runs in host mode, no port selection needed."
+            continue
+        fi
+
+        while true; do
+            read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT
+            PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
+            if is_port_available "$PORT"; then
+                break  # Port is available
+            else
+                echo "Port $PORT is already in use. Please enter a different port."
+            fi
+        done
+        export "${SERVICE_NAME^^}_PORT"="$PORT"
+    done
+
     # Generate docker-compose.yml
     echo "services:" > "$WORKDIR/compose.yml"
-    IFS=' ' read -r -a SERVICE_ARRAY <<< "$SERVICES"
-    for service in "${SERVICE_ARRAY[@]}"; do
-        SERVICE_NAME=$(echo $service | tr '[:upper:]' '[:lower:]' | tr -d ' ')
+    for service in $SERVICES; do
+        SERVICE_NAME=$(echo "$service" | awk '{print tolower($0)}' | tr -d ' "')
+        case $SERVICE_NAME in
+            adguardhome|plex|tautulli)
+                NETWORK_CONFIG="network_mode: \"host\""
+                ;;
+            znc)
+                NETWORK_CONFIG="networks:\n      - znc_network"
+                ;;
+            *)
+                NETWORK_CONFIG="networks:\n      - media_network"
+                ;;
+        esac
+
         case $SERVICE_NAME in
             adguardhome)
                 IMAGE="adguard/adguardhome"
@@ -202,15 +258,12 @@ EOF
                 ;;
         esac
 
-    echo "DEBUG: SERVICE_NAME='$SERVICE_NAME', IMAGE='$IMAGE'"  # Add this line for debugging
-
         cat <<EOF >> "$WORKDIR/compose.yml"
   ${SERVICE_NAME//\"/}:
     image: ${IMAGE//\"/}
     container_name: ${SERVICE_NAME//\"/}
     restart: unless-stopped
-    networks:
-      - media_network
+    ${NETWORK_CONFIG}
     volumes:
       - ~/docker/config/${SERVICE_NAME//\"/}:/config
       - \${MEDIA_ROOT}/downloads:/downloads
@@ -219,15 +272,25 @@ EOF
       - PGID=\${PGID}
       - TZ=\${TZ}
 EOF
+
+        # Only add ports if the service is NOT using host network mode
+        if [[ "$NETWORK_CONFIG" != 'network_mode: "host"' ]]; then
+            echo "    ports:" >> "$WORKDIR/compose.yml"
+            echo "      - \"\\${${SERVICE_NAME^^}_PORT}:${DEFAULT_PORTS[$SERVICE_NAME]}\"" >> "$WORKDIR/compose.yml"
+        fi
     done
+
     echo "networks:
   media_network:
+    driver: bridge
+  znc_network:
     driver: bridge" >> "$WORKDIR/compose.yml"
     echo "Generated docker-compose.yml at $WORKDIR/compose.yml"
 
     # Ask the user if they want to start the containers now
     start_containers_prompt
 }
+
 
 # Start script by prompting user for action
 prompt_user_action
