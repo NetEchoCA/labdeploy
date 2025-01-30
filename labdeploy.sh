@@ -209,18 +209,19 @@ EOF
 
         if [[ "$DEFAULT_PORT" == "N/A" ]]; then
             echo "$SERVICE_NAME runs in host mode, no port selection needed."
-            continue
+        else
+            while true; do
+                read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT
+                PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
+                if is_port_available "$PORT"; then
+                    export "${SERVICE_NAME^^}_PORT"="$PORT"
+                    break  # Port is available
+                else
+                    echo "Port $PORT is already in use. Please enter a different port."
+                fi
+            done
         fi
 
-        while true; do
-            read -p "Enter port for $SERVICE_NAME (default: $DEFAULT_PORT): " PORT
-            PORT=${PORT:-$DEFAULT_PORT}  # Use default if blank
-            if is_port_available "$PORT"; then
-                break  # Port is available
-            else
-                echo "Port $PORT is already in use. Please enter a different port."
-            fi
-        done
         export "${SERVICE_NAME^^}_PORT"="$PORT"
     done
 
